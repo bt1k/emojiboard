@@ -9,7 +9,7 @@ import (
 )
 
 type Post struct {
-	ID        int64
-	CreatedAt pgtype.Timestamptz
-	Emoji     string
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"createdAt"`
+	Emoji     string             `json:"emoji"`
 }

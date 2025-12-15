@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 
 	"github.com/bt1k/emojiboard/server/dbqueries"
+	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
@@ -20,7 +22,12 @@ func main() {
 	loadEnvVariables()
 	connectToDb()
 	defer dbPool.Close()
-	queryDb()
+	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+	app.Post("/api/v1/posts", postPosts)
+	err := app.Listen(":3000")
+	if err != nil {
+		log.Fatalln("Error:", err)
+	}
 }
 
 func loadEnvVariables() {
@@ -43,10 +50,16 @@ func connectToDb() {
 	dbQueries = dbqueries.New(dbPool)
 }
 
-func queryDb() {
-	posts, err := dbQueries.ListPosts(context.Background())
-	if err != nil {
-		log.Fatalln("Failed to load posts from database")
+// The errorHandler function is a custom Fiber error handler.
+func errorHandler(c *fiber.Ctx, err error) error {
+	// Default error code.
+	code := fiber.StatusInternalServerError
+	// If error is a Fiber error, use its error code.
+	var e *fiber.Error
+	if errors.As(err, &e) {
+		code = e.Code
 	}
-	log.Printf("Posts are: %+v\n", posts)
+	// Send status code. Allow Fiber to send the default message for the error
+	// code.
+	return c.SendStatus(code)
 }
