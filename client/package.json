@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "parcel",
     "build": "parcel build",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "react": "^19.1.0",
@@ -19,6 +20,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "jiti": "^2.6.1",
     "parcel": "^2.14.0",
+    "prettier": "3.7.4",
     "typescript-eslint": "^8.50.0"
   }
 }

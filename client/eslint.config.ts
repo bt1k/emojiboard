@@ -6,5 +6,5 @@ import tseslint from 'typescript-eslint';
 export default defineConfig([
   eslint.configs.recommended,
   tseslint.configs.recommended,
-  reactHooks.configs.flat.recommended
+  reactHooks.configs.flat.recommended,
 ]);
