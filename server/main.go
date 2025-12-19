@@ -22,9 +22,11 @@ func main() {
 	loadEnvVariables()
 	connectToDb()
 	defer dbPool.Close()
-	app := fiber.New(fiber.Config{ErrorHandler: errorHandler})
-	app.Post("/api/v1/posts", postPosts)
-	err := app.Listen(":3000")
+	fiberApp := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+	api := fiberApp.Group("/api/v1")
+	api.Get("/posts", getPosts)
+	api.Post("/posts", postPosts)
+	err := fiberApp.Listen(":3000")
 	if err != nil {
 		log.Fatalln("Error:", err)
 	}

@@ -4,7 +4,7 @@ WHERE id = $1 LIMIT 1;
 
 -- name: ListPosts :many
 SELECT * FROM posts
-ORDER BY id;
+ORDER BY id DESC LIMIT 10;
 
 -- name: CreatePost :one
 INSERT INTO posts (

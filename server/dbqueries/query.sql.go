@@ -49,7 +49,7 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 
 const listPosts = `-- name: ListPosts :many
 SELECT id, created_at, emoji FROM posts
-ORDER BY id
+ORDER BY id DESC LIMIT 10
 `
 
 func (q *Queries) ListPosts(ctx context.Context) ([]Post, error) {

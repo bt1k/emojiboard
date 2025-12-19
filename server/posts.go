@@ -11,6 +11,14 @@ type PostPostsReq struct {
 	Emoji string `form:"emoji"`
 }
 
+func getPosts(c *fiber.Ctx) error {
+	posts, err := dbQueries.ListPosts(c.Context())
+	if err != nil {
+		return err
+	}
+	return c.JSON(posts)
+}
+
 func postPosts(c *fiber.Ctx) error {
 	req := new(PostPostsReq)
 	if err := c.BodyParser(req); err != nil {
