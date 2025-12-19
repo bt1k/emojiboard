@@ -16,7 +16,7 @@ export function App() {
     setPosts([]);
     try {
       // TODO: Remove simulated latency. Just for testing at the moment.
-      await new Promise((resolve, _reject) => setTimeout(resolve, 1_000));
+      await new Promise(resolve => setTimeout(resolve, 1_000));
       const response = await fetch('http://localhost:3000/api/v1/posts');
       if (!response.ok) throw new Error('Fetching posts failed');
       const json: PostDTO[] = await response.json();
