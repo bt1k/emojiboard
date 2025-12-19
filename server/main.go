@@ -8,14 +8,16 @@ import (
 
 	"github.com/bt1k/emojiboard/server/dbqueries"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
 var (
-	dbPool    *pgxpool.Pool
-	dbQueries *dbqueries.Queries
-	dbUrl     string
+	corsOrigins string
+	dbPool      *pgxpool.Pool
+	dbQueries   *dbqueries.Queries
+	dbUrl       string
 )
 
 func main() {
@@ -23,6 +25,7 @@ func main() {
 	connectToDb()
 	defer dbPool.Close()
 	fiberApp := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+	fiberApp.Use(cors.New(cors.Config{AllowOrigins: corsOrigins}))
 	api := fiberApp.Group("/api/v1")
 	api.Get("/posts", getPosts)
 	api.Post("/posts", postPosts)
@@ -38,8 +41,9 @@ func loadEnvVariables() {
 		log.Fatalln("Failed to load .env file")
 	}
 	dbUrl = os.Getenv("EMOJIBOARD_DB_URL")
-	if dbUrl == "" {
-		log.Fatalln("Database environment variable not set; see README")
+	corsOrigins = os.Getenv("EMOJIBOARD_CORS_ORIGINS")
+	if dbUrl == "" || corsOrigins == "" {
+		log.Fatalln("Database environment variables not set; see README")
 	}
 }
 

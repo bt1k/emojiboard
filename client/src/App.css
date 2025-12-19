@@ -1,8 +1,42 @@
+:root {
+  --app-width: 45rem;
+}
+
 html {
-  color-scheme: light dark;
-  font-family: system-ui;
+  background-color: white;
   display: flex;
-  align-items: center;
+  font-family: sans-serif;
+  font-size: 16px;
+  height: 100vh;
+}
+
+body {
+  flex: 1;
+  margin: 0;
+}
+
+#appHeader {
+  background-color: lightblue;
+  color: white;
+  display: flex;
   justify-content: center;
-  height: 100%;
+  width: 100%;
+}
+
+#appNav {
+  background-color: blue;
+  max-width: calc(var(--app-width) - 2rem);
+  padding: 1rem;
+  width: 100%;
+}
+
+#appContainer {
+  display: flex;
+  justify-content: center;
+}
+
+#appMain {
+  max-width: calc(var(--app-width) - 2rem);
+  padding: 1rem;
+  width: 100%;
 }

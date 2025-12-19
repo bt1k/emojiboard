@@ -7,6 +7,7 @@ This may one day be a back-end and front-end for a website where you can post em
 In the `server` directory, create a file named `.env` (don't commit this file with Git). Add the following environment variables to that file:
 
 * `EMOJIBOARD_DB_URL` - The URL of your Postgres database. E.g. `postgres://user:password@localhost:5432/emojiboard`.
+* `EMOJIBOARD_CORS_ORIGINS` - A comma-separated list of all origins allowed to get responses from the back-end, under CORS rules. E.g. `https://foo.com, https://bar.com`.
 
 ## Database migrations
 
