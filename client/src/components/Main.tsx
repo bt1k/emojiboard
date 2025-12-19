@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Post from './Post';
 
 export default function Main() {
   const [isLoading, setIsLoading] = useState(false);
@@ -41,14 +42,12 @@ export default function Main() {
       {hasError ? (
         <p>Error!</p>
       ) : (
-        <>
+        <div id="postsContainer">
           <p>{posts.length} post(s) loaded.</p>
-          <ol>
-            {posts.map((post) => (
-              <li key={post.id}>{JSON.stringify(post)}</li>
-            ))}
-          </ol>
-        </>
+          {posts.map((post) => (
+            <Post key={post.id} post={post} />
+          ))}
+        </div>
       )}
     </>
   );
