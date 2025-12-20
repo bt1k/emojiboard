@@ -21,13 +21,13 @@ export default function PostForm({ getPosts }: PostFormProps) {
       );
       if (!response.ok) throw new Error('Submitting post failed');
       await getPosts();
-      setEmoji('');
       alert(
         'Your emoji was submitted. Scroll down to see the submitted emojis.',
       );
     } catch {
       alert('There was an error when submitting your emoji.');
     }
+    setEmoji('');
   }
 
   return (
