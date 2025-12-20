@@ -1,4 +1,8 @@
-export default function Post({ post }: { post: Post }) {
+type PostProps = {
+  post: Post;
+};
+
+export default function Post({ post }: PostProps) {
   return (
     <div className="post">
       <p>

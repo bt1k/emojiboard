@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import Post from './Post';
+import PostForm from './PostForm';
+import PostsList from './PostsList';
 
 export default function Main() {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +17,7 @@ export default function Main() {
     setPosts([]);
     try {
       // TODO: Remove simulated latency. Just for testing at the moment.
-      await new Promise((resolve) => setTimeout(resolve, 1_000));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       const response = await fetch('http://localhost:3000/api/v1/posts');
       if (!response.ok) throw new Error('Fetching posts failed');
       const json: PostDTO[] = await response.json();
@@ -32,22 +33,21 @@ export default function Main() {
     setIsLoading(false);
   }
 
-  if (isLoading) return <p>Loading...</p>;
-
   return (
     <>
-      <p>{posts.length} post(s) loaded.</p>
+      <h2>Welcome</h2>
       <p>
-        <button onClick={getPosts}>Reload</button>
+        On this website you can create a post with an emoji. Submit your own
+        emoji, or have a look below at the emojis that have already been
+        submitted.
       </p>
-      {hasError ? (
-        <p>Error!</p>
+      <h2>Submit Emoji</h2>
+      <PostForm getPosts={getPosts} />
+      <h2>Submitted Emojis</h2>
+      {isLoading ? (
+        <p>Loading...</p>
       ) : (
-        <div id="postsContainer">
-          {posts.map((post) => (
-            <Post key={post.id} post={post} />
-          ))}
-        </div>
+        <PostsList getPosts={getPosts} hasError={hasError} posts={posts} />
       )}
     </>
   );
