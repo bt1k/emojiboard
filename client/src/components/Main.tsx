@@ -36,6 +36,7 @@ export default function Main() {
 
   return (
     <>
+      <p>{posts.length} post(s) loaded.</p>
       <p>
         <button onClick={getPosts}>Reload</button>
       </p>
@@ -43,7 +44,6 @@ export default function Main() {
         <p>Error!</p>
       ) : (
         <div id="postsContainer">
-          <p>{posts.length} post(s) loaded.</p>
           {posts.map((post) => (
             <Post key={post.id} post={post} />
           ))}

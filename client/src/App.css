@@ -15,6 +15,41 @@ body {
   margin: 0;
 }
 
+form {
+  background-color: lightgrey;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+button,
+input[type='submit'],
+select {
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+button,
+input[type='submit'] {
+  background-color: blue;
+  border: 0;
+  color: white;
+}
+
+select {
+  background-color: white;
+  border: 1px solid darkgrey;
+}
+
+input:disabled {
+  background-color: grey;
+  opacity: 0.5;
+}
+
 #appHeader {
   background-color: lightblue;
   color: white;
