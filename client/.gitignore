@@ -1,3 +1,6 @@
+# Directories
 .parcel-cache/
 dist/
 node_modules/
+# Files
+.env

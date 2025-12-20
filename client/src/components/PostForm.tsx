@@ -12,10 +12,13 @@ export default function PostForm({ getPosts }: PostFormProps) {
     try {
       // TODO: Remove simulated latency. Just for testing at the moment.
       await new Promise((resolve) => setTimeout(resolve, 500));
-      const response = await fetch('http://localhost:3000/api/v1/posts', {
-        body: formData,
-        method: 'POST',
-      });
+      const response = await fetch(
+        `${process.env.EMOJIBOARD_BE_ORIGIN}/api/v1/posts`,
+        {
+          body: formData,
+          method: 'POST',
+        },
+      );
       if (!response.ok) throw new Error('Submitting post failed');
       await getPosts();
       setEmoji('');

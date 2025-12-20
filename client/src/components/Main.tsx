@@ -18,7 +18,9 @@ export default function Main() {
     try {
       // TODO: Remove simulated latency. Just for testing at the moment.
       await new Promise((resolve) => setTimeout(resolve, 500));
-      const response = await fetch('http://localhost:3000/api/v1/posts');
+      const response = await fetch(
+        `${process.env.EMOJIBOARD_BE_ORIGIN}/api/v1/posts`,
+      );
       if (!response.ok) throw new Error('Fetching posts failed');
       const json: PostDTO[] = await response.json();
       setPosts(
