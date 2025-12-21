@@ -13,15 +13,26 @@ export default function PostsList({
   hasError,
   posts,
 }: PostsListProps) {
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [dateUpdatedEveryMinute, setDateUpdatedEveryMinute] = useState(
     new Date(),
   );
 
   useEffect(() => {
-    const intervalId = setInterval(
-      () => setDateUpdatedEveryMinute(new Date()),
-      60_000,
-    );
+    const intervalId = setInterval(() => {
+      setSecondsElapsed((secs) => {
+        // If `secondsElapsed` is 59 and it's supposed to be updated, then it's
+        // supposed to be updated to 60 - or rather it is supposed to be reset
+        // to 0. On a watch, the number 60 for seconds is never shown - instead
+        // it just goes straight to 0.
+        if (secs < 59) {
+          return secs + 1;
+        } else {
+          setDateUpdatedEveryMinute(new Date());
+          return 0;
+        }
+      });
+    }, 1_000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -31,8 +42,7 @@ export default function PostsList({
       {posts.length > 0 && (
         <p>
           The age of each post is updated every minute (will update in{' '}
-          <Countdown dateUpdatedEveryMinute={dateUpdatedEveryMinute} />{' '}
-          second(s)).
+          <Countdown secondsElapsed={secondsElapsed} /> second(s)).
         </p>
       )}
       <p>
