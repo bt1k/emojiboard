@@ -13,7 +13,7 @@ export default function PostForm({ getPosts }: PostFormProps) {
       // TODO: Remove simulated latency. Just for testing at the moment.
       await new Promise((resolve) => setTimeout(resolve, 500));
       const response = await fetch(
-        `${process.env.EMOJIBOARD_BE_ORIGIN}/api/v1/posts`,
+        `${import.meta.env.VITE_EMOJIBOARD_BE_ORIGIN}/api/v1/posts`,
         {
           body: formData,
           method: 'POST',

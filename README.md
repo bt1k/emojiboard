@@ -11,7 +11,7 @@ In the `server` directory, create a file named `.env` (don't commit this file wi
 
 In the `client` directory, also create a file named `.env` (again, don't commit this file with Git). Add the following environment variables to that file:
 
-* `EMOJIBOARD_BE_ORIGIN` - The [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin) of your back-end. E.g. `https://foo.com` in production, or something like `http://192.168.0.50:3000` in development.
+* `VITE_EMOJIBOARD_BE_ORIGIN` - The [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin) of your back-end. E.g. `https://foo.com` in production, or something like `http://192.168.0.50:3000` in development.
 
 ## Database migrations
 
