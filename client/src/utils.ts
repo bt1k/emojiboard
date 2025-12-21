@@ -2,12 +2,16 @@ const relativeTimeFormat = new Intl.RelativeTimeFormat('en', {
   style: 'short',
 });
 
-export function dateToRelativeTimeString(date: Date): string {
-  const now = new Date();
-  const difference = now.valueOf() - date.valueOf();
+/**
+ * Returns the gap between two `Date` objects as a string, using
+ * `Intl.RelativeTimeFormat`. The `date1` parameter should represent an earlier
+ * time than `date2`.
+ */
+export function dateGapAsRelativeTimeString(date1: Date, date2: Date): string {
+  const difference = date2.valueOf() - date1.valueOf();
   if (difference < 60_000) {
     // Less than 1 minute.
-    return `< ${relativeTimeFormat.format(-1, 'minute')}`;
+    return `Less than ${relativeTimeFormat.format(-1, 'minute')}`;
   } else if (difference < 3_600_000) {
     // Less than 1 hour.
     return relativeTimeFormat.format(

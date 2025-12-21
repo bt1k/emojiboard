@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import Countdown from './Countdown';
 import Post from './Post';
 
 type PostsListProps = {
@@ -11,9 +13,28 @@ export default function PostsList({
   hasError,
   posts,
 }: PostsListProps) {
+  const [dateUpdatedEveryMinute, setDateUpdatedEveryMinute] = useState(
+    new Date(),
+  );
+
+  useEffect(() => {
+    const intervalId = setInterval(
+      () => setDateUpdatedEveryMinute(new Date()),
+      60_000,
+    );
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <>
       <p>{posts.length} post(s) loaded (maximum: 10).</p>
+      {posts.length > 0 && (
+        <p>
+          The age of each post is updated every minute (will update in{' '}
+          <Countdown dateUpdatedEveryMinute={dateUpdatedEveryMinute} />{' '}
+          second(s)).
+        </p>
+      )}
       <p>
         <button onClick={getPosts}>Reload</button>
       </p>
@@ -22,7 +43,11 @@ export default function PostsList({
       ) : (
         <div id="postsContainer">
           {posts.map((post) => (
-            <Post key={post.id} post={post} />
+            <Post
+              key={post.id}
+              dateUpdatedEveryMinute={dateUpdatedEveryMinute}
+              post={post}
+            />
           ))}
         </div>
       )}
