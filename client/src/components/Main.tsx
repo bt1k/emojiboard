@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import PostForm from './PostForm';
 import PostsList from './PostsList';
+import { alertRateLimitInfo } from '../utils';
 
 export default function Main() {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,12 +17,15 @@ export default function Main() {
     setHasError(false);
     setPosts([]);
     try {
-      // TODO: Remove simulated latency. Just for testing at the moment.
-      await new Promise((resolve) => setTimeout(resolve, 500));
       const response = await fetch(
         `${import.meta.env.VITE_EMOJIBOARD_BE_ORIGIN}/api/v1/posts`,
       );
-      if (!response.ok) throw new Error('Fetching posts failed');
+      if (response.status === 429) {
+        alertRateLimitInfo(response.headers, 'loading posts');
+        throw new Error('Fetching posts too often');
+      } else if (!response.ok) {
+        throw new Error('Fetching posts failed');
+      }
       const json: PostDTO[] = await response.json();
       setPosts(
         json.map((postDTO) => ({

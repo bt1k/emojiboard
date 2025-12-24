@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PostFieldset from './PostFieldset';
+import { alertRateLimitInfo } from '../utils';
 
 type PostFormProps = {
   getPosts: () => Promise<void>;
@@ -10,8 +11,6 @@ export default function PostForm({ getPosts }: PostFormProps) {
 
   async function handleForm(formData: FormData) {
     try {
-      // TODO: Remove simulated latency. Just for testing at the moment.
-      await new Promise((resolve) => setTimeout(resolve, 500));
       const response = await fetch(
         `${import.meta.env.VITE_EMOJIBOARD_BE_ORIGIN}/api/v1/posts`,
         {
@@ -19,11 +18,17 @@ export default function PostForm({ getPosts }: PostFormProps) {
           method: 'POST',
         },
       );
-      if (!response.ok) throw new Error('Submitting post failed');
-      await getPosts();
+      if (response.status === 429) {
+        alertRateLimitInfo(response.headers, 'submitting posts');
+        setEmoji('');
+        return;
+      } else if (!response.ok) {
+        throw new Error('Submitting post failed');
+      }
       alert(
         'Your emoji was submitted. Scroll down to see the submitted emojis.',
       );
+      await getPosts();
     } catch {
       alert('There was an error when submitting your emoji.');
     }

@@ -23,15 +23,25 @@ var (
 )
 
 func main() {
+	// Setup.
 	loadEnvVariables()
 	connectToDb()
 	defer dbPool.Close()
-	fiberApp := fiber.New(fiber.Config{ErrorHandler: errorHandler})
-	fiberApp.Use(cors.New(cors.Config{AllowOrigins: corsOrigins}))
+	fiberApp := fiber.New(fiber.Config{
+		ErrorHandler: errorHandler,
+	})
+	fiberApp.Use(cors.New(cors.Config{
+		AllowOrigins:  corsOrigins,
+		ExposeHeaders: "Retry-After",
+	}))
 	rateLimiters := setUpRateLimiters()
+
+	// Define route handlers.
 	api := fiberApp.Group("/api/v1")
 	api.Get("/posts", rateLimiters["getPosts"], getPosts)
 	api.Post("/posts", rateLimiters["postPosts"], postPosts)
+
+	// Start Fiber app.
 	err := fiberApp.Listen(":3000")
 	if err != nil {
 		log.Fatalln("Error:", err)
