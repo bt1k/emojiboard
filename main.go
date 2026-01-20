@@ -2,20 +2,26 @@ package main
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 	"time"
 
-	"github.com/bt1k/emojiboard/server/dbqueries"
+	"github.com/bt1k/emojiboard/dbqueries"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
 var (
+	//go:embed client/dist/*
+	clientFiles embed.FS
 	corsOrigins string
 	dbPool      *pgxpool.Pool
 	dbQueries   *dbqueries.Queries
@@ -33,6 +39,14 @@ func main() {
 	fiberApp.Use(cors.New(cors.Config{
 		AllowOrigins:  corsOrigins,
 		ExposeHeaders: "Retry-After",
+	}))
+	fiberApp.Use("/", filesystem.New(filesystem.Config{
+		// Skip this static file middleware if the path starts with "/api/".
+		Next: func(c *fiber.Ctx) bool {
+			return strings.HasPrefix(c.Path(), "/api/")
+		},
+		PathPrefix: "client/dist",
+		Root:       http.FS(clientFiles),
 	}))
 	rateLimiters := setUpRateLimiters()
 

@@ -5,7 +5,7 @@
 # * tmux
 # * Node.js (version 24 or later recommended; earlier versions may also work)
 # * Go (I think any version should be okay because when `go run` is run, I think
-#   it will download the Go version specified in the file `server/go.mod`)
+#   it will download the Go version specified in the file `go.mod`)
 
 SESSION_NAME="emojiboard"
 
@@ -14,7 +14,6 @@ if tmux has-session -t $SESSION_NAME 2>/dev/null; then
 else
   tmux new-session -d -s $SESSION_NAME
   tmux split-window -v
-  tmux send-keys -t 0 "cd server" C-m
   tmux send-keys -t 0 "go run ." C-m
   tmux send-keys -t 1 "cd client" C-m
   tmux send-keys -t 1 "npm run dev" C-m

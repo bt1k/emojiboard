@@ -1,10 +1,10 @@
 # emojiboard
 
-This may one day be a back-end and front-end for a website where you can post emojis.
+This is a simple web application, made with Go and React, allowing you to submit emojis. These emojis are stored in a database and displayed in the React front-end.
 
 ## Environment Variables
 
-In the `server` directory, create a file named `.env` (don't commit this file with Git). Add the following environment variables to that file:
+In the root directory of the repo, create a file named `.env` (don't commit this file with Git). Add the following environment variables to that file:
 
 * `EMOJIBOARD_DB_URL` - The URL of your Postgres database. E.g. `postgres://user:password@localhost:5432/emojiboard`.
 * `EMOJIBOARD_CORS_ORIGINS` - A comma-separated list of all origins allowed to get responses from the back-end, under CORS rules. E.g. `https://foo.com, https://bar.com`.

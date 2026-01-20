@@ -1,4 +1,4 @@
-module github.com/bt1k/emojiboard/server
+module github.com/bt1k/emojiboard
 
 go 1.25.5
 
