@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -15,6 +16,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
@@ -31,6 +35,7 @@ var (
 func main() {
 	// Setup.
 	loadEnvVariables()
+	runDbMigrations()
 	connectToDb()
 	defer dbPool.Close()
 	fiberApp := fiber.New(fiber.Config{
@@ -70,8 +75,30 @@ func loadEnvVariables() {
 	dbUrl = os.Getenv("EMOJIBOARD_DB_URL")
 	corsOrigins = os.Getenv("EMOJIBOARD_CORS_ORIGINS")
 	if dbUrl == "" || corsOrigins == "" {
-		log.Fatalln("Database environment variables not set; see README")
+		log.Fatalln("Environment variables not set; see README")
 	}
+}
+
+func runDbMigrations() {
+	log.Println("Running database migrations...")
+	// Migrate expects the database URL to be prefixed with `pgx5` instead of
+	// `postgres` in order to use pgx. See:
+	// https://github.com/golang-migrate/migrate/tree/master/database/pgx/v5
+	re := regexp.MustCompile("^postgres")
+	migrateDbUrl := re.ReplaceAllString(dbUrl, "pgx5")
+	m, err := migrate.New("file://migrations", migrateDbUrl)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = m.Up()
+	if errors.Is(err, migrate.ErrNoChange) {
+		log.Println("No new migrations to run")
+		return
+	}
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("Database migrations successful")
 }
 
 func connectToDb() {

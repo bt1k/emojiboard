@@ -13,14 +13,16 @@ In the `client` directory, also create a file named `.env` (again, don't commit 
 
 * `VITE_EMOJIBOARD_BE_ORIGIN` - The [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin) of your back-end. E.g. `https://foo.com` in production, or something like `http://192.168.0.50:3000` in development.
 
-## Database migrations
+## Running database migrations
 
-Install the `migrate` CLI using the instructions [here](https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md).
-
-Once you have done that, you can generate new migrations by running a command like:
-
-`migrate create -dir ./migrations -seq -ext sql name_of_migration`
-
-You can run the migrations by running a command like:
+The back-end automatically runs database migrations when it starts. You can also run migrations by installing the `migrate` CLI (see below), and then running a command like:
 
 `migrate -source file://migrations -database postgres://user:password@localhost:5432/emojiboard up`
+
+## Creating new database migrations
+
+In development, install the `migrate` CLI using the instructions [here](https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md).
+
+Once you have done that, you can generate a new migration by running a command like:
+
+`migrate create -dir ./migrations -seq -ext sql name_of_migration`
