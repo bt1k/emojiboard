@@ -2,19 +2,14 @@ package main
 
 import (
 	"context"
-	"embed"
 	"errors"
 	"log"
-	"net/http"
 	"os"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/bt1k/emojiboard/dbqueries"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
@@ -24,52 +19,27 @@ import (
 )
 
 var (
-	//go:embed client/dist/*
-	clientFiles   embed.FS
-	corsOrigins   string
-	dbPool        *pgxpool.Pool
-	dbQueries     *dbqueries.Queries
-	dbUrl         string
-	isDev         bool
+	corsOrigins string
+	dbPool      *pgxpool.Pool
+	dbQueries   *dbqueries.Queries
+	dbUrl       string
+	// Assigned to in `extra_prod.go` and `extra_dev.go`.
+	isDev bool
+	// Assigned to in `extra_prod.go` and `extra_dev.go`.
 	listenAddress string
+	// Assigned to in `extra_prod.go` and `extra_dev.go`.
+	middleware []any
 )
 
 func main() {
 	// Setup.
-	loadEnvVariables()
 	runDbMigrations()
 	connectToDb()
 	defer dbPool.Close()
 	fiberApp := fiber.New(fiber.Config{
 		ErrorHandler: errorHandler,
 	})
-	if isDev {
-		// In development, the front-end files are served by Vite on a different
-		// origin, so CORS needs to be enabled.
-		fiberApp.Use(cors.New(cors.Config{
-			AllowOrigins:  corsOrigins,
-			ExposeHeaders: "Retry-After",
-		}))
-		// Bind to 0.0.0.0 so the back-end can be accessed over the local
-		// network.
-		listenAddress = ":3000"
-	} else {
-		// In production, this Go binary serves the built front-end files. This
-		// middleware makes that happen.
-		fiberApp.Use("/", filesystem.New(filesystem.Config{
-			// Skip this static file middleware if the path starts with "/api/".
-			Next: func(c *fiber.Ctx) bool {
-				return strings.HasPrefix(c.Path(), "/api/")
-			},
-			PathPrefix: "client/dist",
-			Root:       http.FS(clientFiles),
-		}))
-		// Bind only to localhost (not to 0.0.0.0) because in production, the
-		// Go binary should not be accessible over the network. Instead I am
-		// using Cloudflare Tunnel on the server which connects localhost-bound
-		// services on the server to Cloudflare.
-		listenAddress = "127.0.0.1:3000"
-	}
+	fiberApp.Use(middleware...)
 	rateLimiters := setUpRateLimiters()
 
 	// Define route handlers.
