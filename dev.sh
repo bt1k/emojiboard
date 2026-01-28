@@ -14,7 +14,7 @@ if tmux has-session -t $SESSION_NAME 2>/dev/null; then
 else
   tmux new-session -d -s $SESSION_NAME
   tmux split-window -v
-  tmux send-keys -t 0 "go run ." C-m
+  tmux send-keys -t 0 "go run -tags dev ." C-m
   tmux send-keys -t 1 "cd client" C-m
   tmux send-keys -t 1 "npm run dev" C-m
 fi

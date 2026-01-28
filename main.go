@@ -25,11 +25,13 @@ import (
 
 var (
 	//go:embed client/dist/*
-	clientFiles embed.FS
-	corsOrigins string
-	dbPool      *pgxpool.Pool
-	dbQueries   *dbqueries.Queries
-	dbUrl       string
+	clientFiles   embed.FS
+	corsOrigins   string
+	dbPool        *pgxpool.Pool
+	dbQueries     *dbqueries.Queries
+	dbUrl         string
+	isDev         bool
+	listenAddress string
 )
 
 func main() {
@@ -41,18 +43,33 @@ func main() {
 	fiberApp := fiber.New(fiber.Config{
 		ErrorHandler: errorHandler,
 	})
-	fiberApp.Use(cors.New(cors.Config{
-		AllowOrigins:  corsOrigins,
-		ExposeHeaders: "Retry-After",
-	}))
-	fiberApp.Use("/", filesystem.New(filesystem.Config{
-		// Skip this static file middleware if the path starts with "/api/".
-		Next: func(c *fiber.Ctx) bool {
-			return strings.HasPrefix(c.Path(), "/api/")
-		},
-		PathPrefix: "client/dist",
-		Root:       http.FS(clientFiles),
-	}))
+	if isDev {
+		// In development, the front-end files are served by Vite on a different
+		// origin, so CORS needs to be enabled.
+		fiberApp.Use(cors.New(cors.Config{
+			AllowOrigins:  corsOrigins,
+			ExposeHeaders: "Retry-After",
+		}))
+		// Bind to 0.0.0.0 so the back-end can be accessed over the local
+		// network.
+		listenAddress = ":3000"
+	} else {
+		// In production, this Go binary serves the built front-end files. This
+		// middleware makes that happen.
+		fiberApp.Use("/", filesystem.New(filesystem.Config{
+			// Skip this static file middleware if the path starts with "/api/".
+			Next: func(c *fiber.Ctx) bool {
+				return strings.HasPrefix(c.Path(), "/api/")
+			},
+			PathPrefix: "client/dist",
+			Root:       http.FS(clientFiles),
+		}))
+		// Bind only to localhost (not to 0.0.0.0) because in production, the
+		// Go binary should not be accessible over the network. Instead I am
+		// using Cloudflare Tunnel on the server which connects localhost-bound
+		// services on the server to Cloudflare.
+		listenAddress = "127.0.0.1:3000"
+	}
 	rateLimiters := setUpRateLimiters()
 
 	// Define route handlers.
@@ -61,7 +78,7 @@ func main() {
 	api.Post("/posts", rateLimiters["postPosts"], postPosts)
 
 	// Start Fiber app.
-	err := fiberApp.Listen(":3000")
+	err := fiberApp.Listen(listenAddress)
 	if err != nil {
 		log.Fatalln("Error:", err)
 	}
@@ -74,8 +91,11 @@ func loadEnvVariables() {
 	}
 	dbUrl = os.Getenv("EMOJIBOARD_DB_URL")
 	corsOrigins = os.Getenv("EMOJIBOARD_CORS_ORIGINS")
-	if dbUrl == "" || corsOrigins == "" {
-		log.Fatalln("Environment variables not set; see README")
+	if dbUrl == "" {
+		log.Fatalln("Database environment variable not set; see README")
+	}
+	if isDev && corsOrigins == "" {
+		log.Fatalln("CORS environment variable not set; see README")
 	}
 }
 
