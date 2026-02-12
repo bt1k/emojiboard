@@ -11,6 +11,7 @@ import (
 	"github.com/bt1k/emojiboard/dbqueries"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -39,6 +40,7 @@ func main() {
 	fiberApp := fiber.New(fiber.Config{
 		ErrorHandler: errorHandler,
 	})
+	fiberApp.Use(logger.New())
 	fiberApp.Use(middleware...)
 	rateLimiters := setUpRateLimiters()
 
