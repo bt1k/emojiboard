@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -25,6 +26,8 @@ var (
 	dbQueries   *dbqueries.Queries
 	dbUrl       string
 	// Assigned to in `extra_prod.go` and `extra_dev.go`.
+	ipTag string
+	// Assigned to in `extra_prod.go` and `extra_dev.go`.
 	isDev bool
 	// Assigned to in `extra_prod.go` and `extra_dev.go`.
 	listenAddress string
@@ -40,7 +43,12 @@ func main() {
 	fiberApp := fiber.New(fiber.Config{
 		ErrorHandler: errorHandler,
 	})
-	fiberApp.Use(logger.New())
+	fiberApp.Use(logger.New(logger.Config{
+		Format: fmt.Sprintf(
+			"${time} | ${status} | ${latency} | ${%s} | ${method} | ${path} | ${error}\n",
+			ipTag,
+		),
+	}))
 	fiberApp.Use(middleware...)
 	rateLimiters := setUpRateLimiters()
 

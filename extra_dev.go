@@ -9,6 +9,7 @@ import "github.com/gofiber/fiber/v2/middleware/cors"
 
 func init() {
 	loadEnvVariables()
+	ipTag = "ip"
 	isDev = true
 	listenAddress = ":3000"
 	// In development, the Go binary doesn't serve the front-end. Instead, Vite

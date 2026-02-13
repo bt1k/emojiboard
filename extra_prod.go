@@ -20,6 +20,9 @@ var (
 
 func init() {
 	loadEnvVariables()
+	// In production, the app is behind Cloudflare, so the IP address of the
+	// request is in a header.
+	ipTag = "reqHeader:CF-Connecting-IP"
 	isDev = false
 	listenAddress = "127.0.0.1:3000"
 	// In production, the Go binary serves the built front-end. This middleware
