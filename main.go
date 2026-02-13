@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/bt1k/emojiboard/dbqueries"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/limiter"
+	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -40,9 +40,7 @@ func main() {
 	runDbMigrations()
 	connectToDb()
 	defer dbPool.Close()
-	fiberApp := fiber.New(fiber.Config{
-		ErrorHandler: errorHandler,
-	})
+	fiberApp := fiber.New(fiber.Config{ErrorHandler: errorHandler})
 	fiberApp.Use(logger.New(logger.Config{
 		Format: fmt.Sprintf(
 			"${time} | ${status} | ${latency} | ${%s} | ${method} | ${path} | ${error}\n",
@@ -111,7 +109,7 @@ func connectToDb() {
 }
 
 // The errorHandler function is a custom Fiber error handler.
-func errorHandler(c *fiber.Ctx, err error) error {
+func errorHandler(c fiber.Ctx, err error) error {
 	// Default error code.
 	code := fiber.StatusInternalServerError
 	// If error is a Fiber error, use its error code.

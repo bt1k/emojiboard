@@ -5,7 +5,7 @@
 
 package main
 
-import "github.com/gofiber/fiber/v2/middleware/cors"
+import "github.com/gofiber/fiber/v3/middleware/cors"
 
 func init() {
 	loadEnvVariables()
@@ -17,7 +17,7 @@ func init() {
 	middleware = []any{
 		cors.New(cors.Config{
 			AllowOrigins:  corsOrigins,
-			ExposeHeaders: "Retry-After",
+			ExposeHeaders: []string{"Retry-After"},
 		}),
 	}
 }

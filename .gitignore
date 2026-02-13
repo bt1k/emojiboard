@@ -2,3 +2,5 @@
 .env
 # Compiled binary
 emojiboard
+# Vendor Go source files
+vendor

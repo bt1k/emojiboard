@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -11,20 +11,20 @@ type PostPostsReq struct {
 	Emoji string `form:"emoji"`
 }
 
-func getPosts(c *fiber.Ctx) error {
-	posts, err := dbQueries.ListPosts(c.Context())
+func getPosts(c fiber.Ctx) error {
+	posts, err := dbQueries.ListPosts(c.RequestCtx())
 	if err != nil {
 		return err
 	}
 	return c.JSON(posts)
 }
 
-func postPosts(c *fiber.Ctx) error {
+func postPosts(c fiber.Ctx) error {
 	req := new(PostPostsReq)
-	if err := c.BodyParser(req); err != nil {
+	if err := c.Bind().Body(req); err != nil {
 		return err
 	}
-	post, err := dbQueries.CreatePost(c.Context(), req.Emoji)
+	post, err := dbQueries.CreatePost(c.RequestCtx(), req.Emoji)
 	// If there's an error from Postgres, assume it's due to an invalid value in
 	// the request.
 	var pgErr *pgconn.PgError
@@ -36,3 +36,5 @@ func postPosts(c *fiber.Ctx) error {
 	}
 	return c.JSON(post)
 }
+
+// fiber:context-methods migrated
