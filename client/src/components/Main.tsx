@@ -17,9 +17,7 @@ export default function Main() {
     setHasError(false);
     setPosts([]);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_EMOJIBOARD_BE_ORIGIN}/api/v1/posts`,
-      );
+      const response = await fetch('/api/v1/posts');
       if (response.status === 429) {
         alertRateLimitInfo(response.headers, 'loading posts');
         throw new Error('Fetching posts too often');

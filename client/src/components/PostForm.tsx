@@ -11,13 +11,10 @@ export default function PostForm({ getPosts }: PostFormProps) {
 
   async function handleForm(formData: FormData) {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_EMOJIBOARD_BE_ORIGIN}/api/v1/posts`,
-        {
-          body: formData,
-          method: 'POST',
-        },
-      );
+      const response = await fetch('/api/v1/posts', {
+        body: formData,
+        method: 'POST',
+      });
       if (response.status === 429) {
         alertRateLimitInfo(response.headers, 'submitting posts');
         setEmoji('');

@@ -36,5 +36,3 @@ func postPosts(c fiber.Ctx) error {
 	}
 	return c.JSON(post)
 }
-
-// fiber:context-methods migrated

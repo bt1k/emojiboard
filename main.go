@@ -21,14 +21,11 @@ import (
 )
 
 var (
-	corsOrigins string
-	dbPool      *pgxpool.Pool
-	dbQueries   *dbqueries.Queries
-	dbUrl       string
+	dbPool    *pgxpool.Pool
+	dbQueries *dbqueries.Queries
+	dbUrl     string
 	// Assigned to in `extra_prod.go` and `extra_dev.go`.
 	ipTag string
-	// Assigned to in `extra_prod.go` and `extra_dev.go`.
-	isDev bool
 	// Assigned to in `extra_prod.go` and `extra_dev.go`.
 	listenAddress string
 	// Assigned to in `extra_prod.go` and `extra_dev.go`.
@@ -68,12 +65,8 @@ func loadEnvVariables() {
 		log.Fatalln("Failed to load .env file")
 	}
 	dbUrl = os.Getenv("EMOJIBOARD_DB_URL")
-	corsOrigins = os.Getenv("EMOJIBOARD_CORS_ORIGINS")
 	if dbUrl == "" {
 		log.Fatalln("Database environment variable not set; see README")
-	}
-	if isDev && corsOrigins == "" {
-		log.Fatalln("CORS environment variable not set; see README")
 	}
 }
 

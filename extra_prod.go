@@ -23,7 +23,6 @@ func init() {
 	// In production, the app is behind Cloudflare, so the IP address of the
 	// request is in a header.
 	ipTag = "reqHeader:CF-Connecting-IP"
-	isDev = false
 	listenAddress = "127.0.0.1:3000"
 	distFiles, err := fs.Sub(clientFiles, "client/dist")
 	if err != nil {
