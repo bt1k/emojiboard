@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"fmt"
 	"log"
@@ -15,7 +16,7 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
@@ -30,6 +31,8 @@ var (
 	listenAddress string
 	// Assigned to in `extra_prod.go` and `extra_dev.go`.
 	middleware []any
+	//go:embed migrations/*
+	migrationFiles embed.FS
 )
 
 func main() {
@@ -72,12 +75,16 @@ func loadEnvVariables() {
 
 func runDbMigrations() {
 	log.Println("Running database migrations...")
+	sourceDriver, err := iofs.New(migrationFiles, "migrations")
+	if err != nil {
+		log.Fatalln(err)
+	}
 	// Migrate expects the database URL to be prefixed with `pgx5` instead of
 	// `postgres` in order to use pgx. See:
 	// https://github.com/golang-migrate/migrate/tree/master/database/pgx/v5
 	re := regexp.MustCompile("^postgres")
 	migrateDbUrl := re.ReplaceAllString(dbUrl, "pgx5")
-	m, err := migrate.New("file://migrations", migrateDbUrl)
+	m, err := migrate.NewWithSourceInstance("iofs", sourceDriver, migrateDbUrl)
 	if err != nil {
 		log.Fatalln(err)
 	}
