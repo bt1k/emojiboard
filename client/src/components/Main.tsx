@@ -24,13 +24,17 @@ export default function Main() {
       } else if (!response.ok) {
         throw new Error('Fetching posts failed');
       }
-      const json: PostDTO[] = await response.json();
-      setPosts(
-        json.map((postDTO) => ({
-          ...postDTO,
-          createdAt: new Date(postDTO.createdAt),
-        })),
-      );
+      const json: PostDTO[] | null = await response.json();
+      if (json) {
+        setPosts(
+          json.map((postDTO) => ({
+            ...postDTO,
+            createdAt: new Date(postDTO.createdAt),
+          })),
+        );
+      } else {
+        setPosts([]);
+      }
     } catch {
       setHasError(true);
     }

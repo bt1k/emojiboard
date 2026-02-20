@@ -31,7 +31,12 @@ export default function PostsList({
         <button onClick={getPosts}>Reload</button>
       </p>
       {hasError ? (
-        <p className="error">There was an error when loading posts.</p>
+        <p className="error">
+          There was an error when loading posts. Press the "reload" button to
+          try loading posts again.
+        </p>
+      ) : posts.length < 1 ? (
+        <p>There are no posts. Use the form above to submit an emoji.</p>
       ) : (
         <div id="postsContainer">
           {posts.map((post) => (
