@@ -8,6 +8,8 @@ import (
 	"embed"
 	"io/fs"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/static"
@@ -16,6 +18,9 @@ import (
 var (
 	//go:embed client/dist/*
 	clientFiles embed.FS
+	buildTime   time.Time
+	// Assigned to by a build flag. See `build_prod.sh`.
+	buildTimeString string
 )
 
 func init() {
@@ -43,6 +48,12 @@ func init() {
 			},
 		}),
 	}
+	// Parse the build time flag into type time.Time.
+	t, err := time.Parse(time.RFC3339, buildTimeString)
+	if err != nil {
+		log.Fatalln("Correct build flags were not provided; see `build_prod.sh`")
+	}
+	buildTime = t
 }
 
 // The getRoot function responds with `index.html`.
@@ -58,6 +69,12 @@ func getRoot(c fiber.Ctx) error {
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag
 	// For more info on the header used below, see:
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control
-	c.Response().Header.Add("Cache-Control", "no-cache")
-	return c.SendFile("client/dist/index.html", fiber.SendFile{FS: clientFiles})
+	c.Set("Cache-Control", "no-cache")
+	err := c.SendFile("client/dist/index.html", fiber.SendFile{FS: clientFiles})
+	// Set another header for caching purposes, after Fiber has set its headers
+	// (when `SendFile` is called), in order to override Fiber. Because embedded
+	// files have no metadata, Fiber incorrectly sets the value of this header as
+	// "Mon, 01 Jan 0001 00:00:00 GMT".
+	c.Set("Last-Modified", buildTime.Format(http.TimeFormat))
+	return err
 }
