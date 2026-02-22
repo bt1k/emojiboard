@@ -12,6 +12,7 @@ import (
 
 	"github.com/bt1k/emojiboard/dbqueries"
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/etag"
 	"github.com/gofiber/fiber/v3/middleware/limiter"
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/golang-migrate/migrate/v4"
@@ -41,6 +42,7 @@ func main() {
 	connectToDb()
 	defer dbPool.Close()
 	fiberApp := fiber.New(fiber.Config{ErrorHandler: errorHandler})
+	fiberApp.Use(etag.New())
 	fiberApp.Use(logger.New(logger.Config{
 		Format: fmt.Sprintf(
 			"${time} | ${status} | ${latency} | ${%s} | ${method} | ${path} | ${error}\n",
@@ -51,6 +53,7 @@ func main() {
 	rateLimiters := setUpRateLimiters()
 
 	// Define route handlers.
+	fiberApp.Get("/", getRoot)
 	api := fiberApp.Group("/api/v1")
 	api.Get("/posts", rateLimiters["getPosts"], getPosts)
 	api.Post("/posts", rateLimiters["postPosts"], postPosts)

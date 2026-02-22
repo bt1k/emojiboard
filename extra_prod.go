@@ -34,11 +34,30 @@ func init() {
 		"/",
 		static.New("", static.Config{
 			FS: distFiles,
-			// Skip this static file middleware for explicit requests for `index.html`
-			// since I would prefer that only the root path is used.
+			// Skip this static file middleware for `index.html`. That file has its
+			// own route handler (below) to specify custom caching behaviour. Also I
+			// only want to send `index.html` in response to requests to the root path
+			// (not explicit requests to `index.html`) because I think it's cleaner.
 			Next: func(c fiber.Ctx) bool {
-				return c.Path() == "/index.html"
+				return c.Path() == "/" || c.Path() == "/index.html"
 			},
 		}),
 	}
+}
+
+// The getRoot function responds with `index.html`.
+func getRoot(c fiber.Ctx) error {
+	// Specify that the user's browser can cache `index.html` but the file has to
+	// be validated, via its ETag (since I am using Fiber's ETag middleware) with
+	// the server on each request. This should prevent an issue I encountered
+	// where Chrome on my Android phone had cached `index.html` which referred to
+	// assets which no longer existed (when new assets are built by Vite, they are
+	// given new filenames). This resulted in the site showing a blank page
+	// because the cached `index.html` was trying to load a no-longer-existing
+	// JavaScript bundle. For more info on ETags, see:
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag
+	// For more info on the header used below, see:
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control
+	c.Response().Header.Add("Cache-Control", "no-cache")
+	return c.SendFile("client/dist/index.html", fiber.SendFile{FS: clientFiles})
 }

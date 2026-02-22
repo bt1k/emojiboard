@@ -5,7 +5,10 @@
 
 package main
 
-import "github.com/gofiber/fiber/v3/middleware/cors"
+import (
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/cors"
+)
 
 func init() {
 	loadEnvVariables()
@@ -23,4 +26,9 @@ func init() {
 			ExposeHeaders: []string{"Retry-After"},
 		}),
 	}
+}
+
+// This function is only useful in production. See `extra_prod.go`.
+func getRoot(c fiber.Ctx) error {
+	return fiber.ErrNotFound
 }
