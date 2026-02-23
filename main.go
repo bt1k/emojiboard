@@ -50,6 +50,12 @@ func main() {
 		),
 	}))
 	fiberApp.Use(middleware...)
+	fiberApp.Use("/api/", func(c fiber.Ctx) error {
+		// Disable browser and Cloudflare caching for all paths beginning with
+		// `/api/`.
+		c.Set("Cache-Control", "no-store")
+		return c.Next()
+	})
 	rateLimiters := setUpRateLimiters()
 
 	// Define route handlers.

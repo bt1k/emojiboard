@@ -58,6 +58,6 @@ func getRoot(c fiber.Ctx) error {
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag
 	// For more info on the header used below, see:
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control
-	c.Response().Header.Add("Cache-Control", "no-cache")
+	c.Set("Cache-Control", "no-cache")
 	return c.SendFile("client/dist/index.html", fiber.SendFile{FS: clientFiles})
 }
