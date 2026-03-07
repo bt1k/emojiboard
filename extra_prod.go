@@ -34,6 +34,10 @@ func init() {
 		"/",
 		static.New("", static.Config{
 			FS: distFiles,
+			ModifyResponse: func(c fiber.Ctx) error {
+				deleteLastModifiedHeader(c)
+				return nil
+			},
 			// Skip this static file middleware for `index.html`. That file has its
 			// own route handler (below) to specify custom caching behaviour. Also I
 			// only want to send `index.html` in response to requests to the root path
@@ -59,5 +63,19 @@ func getRoot(c fiber.Ctx) error {
 	// For more info on the header used below, see:
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control
 	c.Set("Cache-Control", "no-cache")
-	return c.SendFile("client/dist/index.html", fiber.SendFile{FS: clientFiles})
+	err := c.SendFile("client/dist/index.html", fiber.SendFile{FS: clientFiles})
+	deleteLastModifiedHeader(c)
+	return err
+}
+
+// The deleteLastModifiedHeader function deletes the `Last-Modified` header from
+// the response. The reason for doing this has to do with the fact that I'm
+// serving embedded files (with Go's `embed` package). When files are embedded,
+// their metadata (such as file creation/modified dates) is lost. This causes
+// Fiber, when serving these files, to set the `Last-Modified` header with a
+// value of `Mon, 01 Jan 0001 00:00:00 GMT`. Obviously that value is not
+// accurate, so I am just deleting the header altogether. I don't think the
+// header is necessary anyway since I am already using the `ETag` header.
+func deleteLastModifiedHeader(c fiber.Ctx) {
+	c.Response().Header.Del("Last-Modified")
 }
